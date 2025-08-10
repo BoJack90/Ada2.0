@@ -1,0 +1,173 @@
+/* React Big Calendar - Custom Styles */
+
+/* Main calendar container */
+.rbc-calendar {
+  @apply bg-background text-foreground font-sans;
+}
+
+/* Header */
+.rbc-header {
+  @apply bg-muted/50 border-b border-border py-3 px-2 text-sm font-medium;
+}
+
+.rbc-header + .rbc-header {
+  @apply border-l border-border;
+}
+
+/* Toolbar */
+.rbc-toolbar {
+  @apply flex flex-wrap items-center justify-between mb-4 gap-4;
+}
+
+.rbc-toolbar button {
+  @apply px-3 py-1.5 text-sm font-medium rounded-md transition-colors;
+  @apply bg-background border border-input hover:bg-accent hover:text-accent-foreground;
+}
+
+.rbc-toolbar button.rbc-active {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90;
+}
+
+.rbc-toolbar-label {
+  @apply text-lg font-semibold text-foreground;
+}
+
+/* Month view */
+.rbc-month-view {
+  @apply border border-border rounded-lg overflow-hidden;
+}
+
+.rbc-month-row {
+  @apply border-b border-border last:border-b-0;
+}
+
+.rbc-day-bg {
+  @apply border-r border-border last:border-r-0;
+}
+
+/* Date cells */
+.rbc-date-cell {
+  @apply text-sm p-1 text-right;
+}
+
+.rbc-date-cell button {
+  @apply font-medium hover:text-primary;
+}
+
+.rbc-off-range-bg {
+  @apply bg-muted/30;
+}
+
+.rbc-today {
+  @apply bg-primary/5;
+}
+
+/* Events */
+.rbc-event {
+  @apply bg-primary text-primary-foreground rounded px-1 py-0.5 text-xs font-medium;
+  @apply border-none shadow-sm hover:shadow-md transition-shadow cursor-pointer;
+}
+
+.rbc-event-label {
+  @apply hidden;
+}
+
+.rbc-event-content {
+  @apply truncate;
+}
+
+/* Selected state */
+.rbc-selected {
+  @apply bg-primary/90 shadow-md;
+}
+
+/* Time slots */
+.rbc-time-view {
+  @apply border border-border rounded-lg overflow-hidden;
+}
+
+.rbc-time-header {
+  @apply border-b border-border;
+}
+
+.rbc-time-content {
+  @apply border-t border-border;
+}
+
+.rbc-time-slot {
+  @apply border-t border-border/50;
+}
+
+.rbc-timeslot-group {
+  @apply border-b border-border/30;
+}
+
+.rbc-current-time-indicator {
+  @apply bg-destructive h-0.5;
+}
+
+/* Agenda view */
+.rbc-agenda-view {
+  @apply overflow-x-auto;
+}
+
+.rbc-agenda-table {
+  @apply w-full border-collapse;
+}
+
+.rbc-agenda-table thead {
+  @apply bg-muted/50;
+}
+
+.rbc-agenda-table tbody > tr {
+  @apply border-b border-border;
+}
+
+.rbc-agenda-table tbody > tr:hover {
+  @apply bg-accent/50;
+}
+
+.rbc-agenda-date-cell,
+.rbc-agenda-time-cell {
+  @apply whitespace-nowrap px-4 py-2 text-sm;
+}
+
+.rbc-agenda-event-cell {
+  @apply px-4 py-2;
+}
+
+/* Show more */
+.rbc-show-more {
+  @apply text-xs font-medium text-primary hover:text-primary/80 cursor-pointer;
+}
+
+/* Overlay for "show more" events */
+.rbc-overlay {
+  @apply bg-card border border-border rounded-lg shadow-lg p-2;
+}
+
+.rbc-overlay-header {
+  @apply border-b border-border pb-2 mb-2 font-medium;
+}
+
+/* Selection */
+.rbc-slot-selecting .rbc-day-bg {
+  @apply bg-primary/10;
+}
+
+/* Custom scrollbar for time view */
+.rbc-time-content::-webkit-scrollbar {
+  @apply w-2;
+}
+
+.rbc-time-content::-webkit-scrollbar-track {
+  @apply bg-muted;
+}
+
+.rbc-time-content::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/30 rounded-md;
+}
+
+.rbc-time-content::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/50;
+}

@@ -1,0 +1,192 @@
+TITLE: Getting a Quick Answer to a Question
+DESCRIPTION: This code snippet demonstrates how to get a concise answer to a question using the Tavily API's Q&A search functionality. It initializes the TavilyClient and then uses the qna_search method to retrieve an answer based on the provided query.
+SOURCE: https://github.com/tavily-ai/tavily-python/blob/master/README.md#_snippet_3
+
+LANGUAGE: python
+CODE:
+```
+from tavily import TavilyClient
+
+# Step 1. Instantiating your TavilyClient
+tavily_client = TavilyClient(api_key="tvly-YOUR_API_KEY")
+
+# Step 2. Executing a Q&A search query
+answer = tavily_client.qna_search(query="Who is Leo Messi?")
+
+# Step 3. That's it! Your question has been answered!
+print(answer)
+```
+
+----------------------------------------
+
+TITLE: Generating Context for RAG Application
+DESCRIPTION: This code snippet shows how to generate context for a Retrieval-Augmented Generation (RAG) application using the Tavily API. It initializes the TavilyClient and then uses the get_search_context method to retrieve a context string based on a given query.
+SOURCE: https://github.com/tavily-ai/tavily-python/blob/master/README.md#_snippet_2
+
+LANGUAGE: python
+CODE:
+```
+from tavily import TavilyClient
+
+# Step 1. Instantiating your TavilyClient
+tavily_client = TavilyClient(api_key="tvly-YOUR_API_KEY")
+
+# Step 2. Executing a context search query
+context = tavily_client.get_search_context(query="What happened during the Burning Man floods?")
+
+# Step 3. That's it! You now have a context string that you can feed directly into your RAG Application
+print(context)
+```
+
+----------------------------------------
+
+TITLE: Executing a Simple Search Query with Tavily
+DESCRIPTION: This code snippet demonstrates how to perform a basic search query using the Tavily API. It initializes the TavilyClient with an API key and then executes a search query, printing the full API response.
+SOURCE: https://github.com/tavily-ai/tavily-python/blob/master/README.md#_snippet_1
+
+LANGUAGE: python
+CODE:
+```
+from tavily import TavilyClient
+
+# Step 1. Instantiating your TavilyClient
+tavily_client = TavilyClient(api_key="tvly-YOUR_API_KEY")
+
+# Step 2. Executing a simple search query
+response = tavily_client.search("Who is Leo Messi?")
+
+# Step 3. That's it! You've done a Tavily Search!
+print(response)
+```
+
+----------------------------------------
+
+TITLE: Extracting Raw Content from Multiple URLs
+DESCRIPTION: This code snippet demonstrates how to extract raw content from multiple URLs using the Tavily Extract API. It initializes the TavilyClient, defines a list of URLs, and then uses the extract method to retrieve content and prints the URL, raw content, and images for each successful extraction.
+SOURCE: https://github.com/tavily-ai/tavily-python/blob/master/README.md#_snippet_4
+
+LANGUAGE: python
+CODE:
+```
+from tavily import TavilyClient
+
+# Step 1. Instantiating your TavilyClient
+tavily_client = TavilyClient(api_key="tvly-YOUR_API_KEY")
+
+# Step 2. Defining the list of URLs to extract content from
+urls = [
+    "https://en.wikipedia.org/wiki/Artificial_intelligence",
+    "https://en.wikipedia.org/wiki/Machine_learning",
+    "https://en.wikipedia.org/wiki/Data_science",
+    "https://en.wikipedia.org/wiki/Quantum_computing",
+    "https://en.wikipedia.org/wiki/Climate_change"
+] # You can provide up to 20 URLs simultaneously
+
+# Step 3. Executing the extract request
+response = tavily_client.extract(urls=urls, include_images=True)
+
+# Step 4. Printing the extracted raw content
+for result in response["results"]:
+    print(f"URL: {result['url']}")
+    print(f"Raw Content: {result['raw_content']}")
+    print(f"Images: {result['images']}\n")
+
+# Note that URLs that could not be extracted will be stored in response["failed_results"]
+```
+
+----------------------------------------
+
+TITLE: Crawling a Website with Instructions
+DESCRIPTION: This code snippet demonstrates how to crawl a website using the Tavily Crawl API, with specific instructions to filter the crawled content. It initializes the TavilyClient, defines a starting URL, and then uses the crawl method with parameters for maximum depth, limit, and instructions to find pages about citrus fruits.
+SOURCE: https://github.com/tavily-ai/tavily-python/blob/master/README.md#_snippet_5
+
+LANGUAGE: python
+CODE:
+```
+from tavily import TavilyClient
+
+# Step 1. Instantiating your TavilyClient
+tavily_client = TavilyClient(api_key="tvly-YOUR_API_KEY")
+
+# Step 2. Defining the starting URL
+start_url = "https://wikipedia.org/wiki/Lemon"
+
+# Step 3. Executing the crawl request with instructions to surface only pages about citrus fruits
+response = tavily_client.crawl(
+    url=start_url,
+    max_depth=3,
+    limit=50,
+    instructions="Find all pages on citrus fruits"
+)
+
+# Step 4. Printing pages matching the query
+for result in response["results"]:
+    print(f"URL: {result['url']}")
+    print(f"Snippet: {result['raw_content'][:200]}...\n")
+```
+
+----------------------------------------
+
+TITLE: Initializing TavilyClient with API Key
+DESCRIPTION: This snippet shows how to instantiate the TavilyClient with your API key.  Replace "tvly-YOUR_API_KEY" with your actual Tavily API key to authenticate your requests.
+SOURCE: https://github.com/tavily-ai/tavily-python/blob/master/README.md#_snippet_6
+
+LANGUAGE: python
+CODE:
+```
+tavily_client = TavilyClient(api_key="tvly-YOUR_API_KEY")
+```
+
+----------------------------------------
+
+TITLE: Executing Map Request with Parameters
+DESCRIPTION: This snippet demonstrates how to execute a map request using the TavilyClient. It sets parameters such as the starting URL, maximum depth, result limit, and instructions for focusing on specific pages. The response contains the site structure.
+SOURCE: https://github.com/tavily-ai/tavily-python/blob/master/README.md#_snippet_8
+
+LANGUAGE: python
+CODE:
+```
+response = tavily_client.map(
+    url=start_url,
+    max_depth=2,
+    limit=30,
+    instructions="Find pages on citrus fruits"
+)
+```
+
+----------------------------------------
+
+TITLE: Defining Start URL for Web Search
+DESCRIPTION: This snippet defines the starting URL for a web search. The start_url variable is used as the entry point for the TavilyClient's map function.
+SOURCE: https://github.com/tavily-ai/tavily-python/blob/master/README.md#_snippet_7
+
+LANGUAGE: python
+CODE:
+```
+start_url = "https://wikipedia.org/wiki/Lemon"
+```
+
+----------------------------------------
+
+TITLE: Printing Site Structure from Map Response
+DESCRIPTION: This snippet shows how to iterate through the results of a map request and print the URL of each page found. It assumes the response is a dictionary with a 'results' key containing a list of dictionaries, each with a 'url' key.
+SOURCE: https://github.com/tavily-ai/tavily-python/blob/master/README.md#_snippet_9
+
+LANGUAGE: python
+CODE:
+```
+for result in response["results"]:
+    print(f"URL: {result['url']}")
+```
+
+----------------------------------------
+
+TITLE: Installing Tavily Python Package
+DESCRIPTION: This command installs the Tavily Python package using pip, allowing you to use the Tavily API within your Python projects.
+SOURCE: https://github.com/tavily-ai/tavily-python/blob/master/README.md#_snippet_0
+
+LANGUAGE: bash
+CODE:
+```
+pip install tavily-python
+```

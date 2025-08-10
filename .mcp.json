@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "ada-filesystem": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-filesystem", "--directory", "D:\\Ada2.0"],
+      "env": {}
+    },
+    "ada-api": {
+      "transport": "http",
+      "url": "http://localhost:8000/mcp",
+      "headers": {
+        "Authorization": "Bearer ${ADA_API_TOKEN}"
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm:*)",
+      "Bash(npm install:*)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(docker compose:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(docker-compose logs:*)",
+      "Bash(docker-compose restart:*)",
+      "Bash(mv:*)",
+      "Bash(docker-compose:*)",
+      "Bash(curl:*)",
+      "Bash(python:*)",
+      "Bash(find:*)",
+      "Bash(alembic upgrade:*)",
+      "Bash(ls:*)",
+      "Bash(docker cp:*)",
+      "Bash(grep:*)",
+      "Bash(start http://localhost:8081)",
+      "Bash(sqlite3:*)",
+      "Bash(psql:*)",
+      "Bash(pip install:*)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(claude mcp:*)",
+      "Bash(docker exec:*)",
+      "Bash(pip index:*)",
+      "Bash(docker:*)",
+      "Bash(npm run dev:*)",
+      "Bash(pkill:*)",
+      "Bash(bash:*)",
+      "Bash(true)",
+      "Bash(where python)",
+      "Bash(venv\\Scripts\\python.exe add_tavily_prompt.py:*)",
+      "WebFetch(domain:pypi.org)",
+      "Bash(timeout 10 docker logs -f ada20-frontend-1)"
+    ],
+    "deny": []
+  }
+}

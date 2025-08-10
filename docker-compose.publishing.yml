@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  # Celery Worker do publikacji treści
+  celery-worker:
+    build: .
+    command: celery -A app.tasks.celery_app worker --loglevel=info --concurrency=4
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DATABASE_URL=postgresql://user:password@postgres:5432/ada_db
+      # Platform credentials
+      - LINKEDIN_ACCESS_TOKEN=${LINKEDIN_ACCESS_TOKEN}
+      - LINKEDIN_CLIENT_ID=${LINKEDIN_CLIENT_ID}
+      - FACEBOOK_ACCESS_TOKEN=${FACEBOOK_ACCESS_TOKEN}
+      - FACEBOOK_PAGE_ID=${FACEBOOK_PAGE_ID}
+      - INSTAGRAM_ACCESS_TOKEN=${INSTAGRAM_ACCESS_TOKEN}
+      - INSTAGRAM_ACCOUNT_ID=${INSTAGRAM_ACCOUNT_ID}
+      - WORDPRESS_USERNAME=${WORDPRESS_USERNAME}
+      - WORDPRESS_PASSWORD=${WORDPRESS_PASSWORD}
+      - WORDPRESS_SITE_URL=${WORDPRESS_SITE_URL}
+    volumes:
+      - ./app:/app
+    networks:
+      - ada-network
+    restart: unless-stopped
+
+  # Celery Beat do automatycznego planowania
+  celery-beat:
+    build: .
+    command: celery -A app.tasks.celery_app beat --loglevel=info --schedule=/app/celerybeat-schedule
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DATABASE_URL=postgresql://user:password@postgres:5432/ada_db
+    volumes:
+      - ./app:/app
+      - celery-beat-schedule:/app
+    networks:
+      - ada-network
+    restart: unless-stopped
+
+  # Flower do monitorowania Celery (opcjonalnie)
+  flower:
+    build: .
+    command: celery -A app.tasks.celery_app flower --port=5555
+    depends_on:
+      - redis
+      - celery-worker
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    ports:
+      - "5555:5555"
+    networks:
+      - ada-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - ada-network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=ada_db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - ada-network
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+  postgres-data:
+  celery-beat-schedule:
+
+networks:
+  ada-network:
+    driver: bridge 

@@ -1,0 +1,36 @@
+--- a/app/tasks/main_flow.py
++++ b/app/tasks/main_flow.py
+@@ -862,6 +862,16 @@ def generate_correlated_sm_variants_task(self, plan_id: int):
+                         db.add(sm_topic)
+                         db.flush()
+                         sm_topic_ids.append(sm_topic.id)
++                        
++                        # Create draft for SM topic to ensure visibility in dashboard
++                        sm_draft = models.ContentDraft(
++                            suggested_topic_id=sm_topic.id,
++                            status="pending_generation",
++                            is_active=True,
++                            created_at=datetime.utcnow(),
++                            updated_at=datetime.utcnow()
++                        )
++                        db.add(sm_draft)
+                 
+                 db.commit()
+                 logger.info(f"Created {len(sm_topic_ids)} SM topics for blog topic {topic.id}")
+@@ -928,6 +938,16 @@ def generate_correlated_sm_variants_task(self, plan_id: int):
+                         db.add(topic)
+                         db.flush()
+                         generated_ids.append(topic.id)
++                        
++                        # Create draft for standalone SM topic
++                        standalone_draft = models.ContentDraft(
++                            suggested_topic_id=topic.id,
++                            status="pending_generation",
++                            is_active=True,
++                            created_at=datetime.utcnow(),
++                            updated_at=datetime.utcnow()
++                        )
++                        db.add(standalone_draft)
+                 
+                 db.commit()
+                 logger.info(f"Generated {len(generated_ids)} standalone SM posts")

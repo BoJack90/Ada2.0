@@ -1,0 +1,324 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
+import { motion } from 'framer-motion'
+import { 
+  Calendar,
+  FileText,
+  Users,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  ChevronRight,
+  Eye,
+  TrendingUp,
+  Layers
+} from 'lucide-react'
+import { apiClient } from '@/lib/api'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { Card } from '@/components/ui/cards'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { format, parseISO } from 'date-fns'
+import { pl } from 'date-fns/locale'
+
+interface ContentPlansListProps {
+  organizationId: number
+}
+
+interface ContentPlanSummary {
+  id: number
+  plan_period: string
+  status: string
+  blog_posts_quota: number
+  sm_posts_quota: number
+  created_at: string
+  updated_at: string
+  content_stats: {
+    total_topics: number
+    approved_topics: number
+    blog_topics: number
+    sm_topics: number
+    total_variants: number
+    scheduled_posts: number
+  }
+}
+
+export function ContentPlansList({ organizationId }: ContentPlansListProps) {
+  console.log('ContentPlansList component mounted with organizationId:', organizationId)
+  
+  const router = useRouter()
+  const [selectedStatus, setSelectedStatus] = useState<string>('all')
+
+  // Fetch content plans
+  const { data: plans, isLoading, error } = useQuery<ContentPlanSummary[]>({
+    queryKey: ['content-plans', organizationId, selectedStatus],
+    queryFn: async () => {
+      console.log('Fetching content plans for organization:', organizationId)
+      
+      try {
+        // Use the existing API that works
+        const response = await apiClient.get(`/content-plans`, {
+          params: {
+            organization_id: organizationId
+          }
+        })
+        
+        console.log('API Response:', response)
+        
+        // Transform the response to match our format
+        const contentPlans = response.data || []
+        console.log('Content plans from API:', contentPlans)
+        
+        // Filter by status if needed
+        const filteredPlans = selectedStatus === 'all' 
+          ? contentPlans 
+          : contentPlans.filter((plan: any) => plan.status === selectedStatus)
+        
+        console.log('Filtered plans:', filteredPlans)
+        
+        // Add mock stats for now
+        const transformedPlans = filteredPlans.map((plan: any) => ({
+          id: plan.id,
+          plan_period: plan.plan_period,
+          status: plan.status,
+          blog_posts_quota: plan.blog_posts_quota,
+          sm_posts_quota: plan.sm_posts_quota,
+          created_at: plan.created_at,
+          updated_at: plan.updated_at,
+          content_stats: {
+            total_topics: 0, // Will fetch separately
+            approved_topics: 0,
+            blog_topics: 0,
+            sm_topics: 0,
+            total_variants: 0,
+            scheduled_posts: 0
+          }
+        }))
+        
+        console.log('Transformed plans:', transformedPlans)
+        return transformedPlans
+      } catch (err) {
+        console.error('Error fetching content plans:', err)
+        throw err
+      }
+    }
+  })
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
+      'draft': { 
+        label: 'Szkic', 
+        color: 'bg-gray-100 text-gray-700',
+        icon: Clock
+      },
+      'generating': { 
+        label: 'Generowanie', 
+        color: 'bg-blue-100 text-blue-700',
+        icon: TrendingUp
+      },
+      'pending_blog_topic_approval': { 
+        label: 'Oczekuje na zatwierdzenie', 
+        color: 'bg-yellow-100 text-yellow-700',
+        icon: AlertCircle
+      },
+      'pending_final_scheduling': { 
+        label: 'Do zaplanowania', 
+        color: 'bg-orange-100 text-orange-700',
+        icon: Calendar
+      },
+      'complete': { 
+        label: 'Zakończony', 
+        color: 'bg-green-100 text-green-700',
+        icon: CheckCircle
+      },
+      'error': { 
+        label: 'Błąd', 
+        color: 'bg-red-100 text-red-700',
+        icon: AlertCircle
+      }
+    }
+    
+    const config = statusConfig[status] || statusConfig['draft']
+    const Icon = config.icon
+    
+    return (
+      <Badge className={`${config.color} flex items-center gap-1`}>
+        <Icon className="h-3 w-3" />
+        {config.label}
+      </Badge>
+    )
+  }
+
+  const getCompletionPercentage = (plan: ContentPlanSummary) => {
+    const stats = plan.content_stats
+    const totalQuota = plan.blog_posts_quota + plan.sm_posts_quota
+    const generated = stats.total_topics
+    return Math.min(100, Math.round((generated / totalQuota) * 100))
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <LoadingSpinner size="large" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Card className="p-6 max-w-md">
+          <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-4" />
+          <p className="text-center text-muted-foreground">
+            Błąd podczas ładowania planów treści. 
+            {error instanceof Error ? error.message : 'Nieznany błąd'}
+          </p>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-foreground">Plany treści</h2>
+        <Button
+          onClick={() => router.push(`/dashboard/organization/${organizationId}/content-plans/new`)}
+          className="flex items-center gap-2"
+        >
+          <Calendar className="h-4 w-4" />
+          Nowy plan
+        </Button>
+      </div>
+
+      {/* Status filters */}
+      <div className="flex gap-2">
+        {['all', 'draft', 'generating', 'complete'].map(status => (
+          <button
+            key={status}
+            onClick={() => setSelectedStatus(status)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              selectedStatus === status
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted hover:bg-accent'
+            }`}
+          >
+            {status === 'all' ? 'Wszystkie' : getStatusBadge(status).props.children[1]}
+          </button>
+        ))}
+      </div>
+
+      {/* Plans grid */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {plans?.map((plan, index) => {
+          const completion = getCompletionPercentage(plan)
+          const stats = plan.content_stats
+          
+          return (
+            <motion.div
+              key={plan.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <Card 
+                className="p-6 hover-lift cursor-pointer group"
+                onClick={() => router.push(`/dashboard/organization/${organizationId}/content-plans/${plan.id}`)}
+              >
+                <div className="space-y-4">
+                  {/* Header */}
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                        <Calendar className="h-5 w-5 text-primary" />
+                        {plan.plan_period}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Utworzono: {format(parseISO(plan.created_at), 'dd MMM yyyy', { locale: pl })}
+                      </p>
+                    </div>
+                    {getStatusBadge(plan.status)}
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Postęp</span>
+                      <span className="font-medium">{completion}%</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-primary rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${completion}%` }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <FileText className="h-4 w-4 text-blue-600" />
+                        <span className="text-muted-foreground">Blog</span>
+                      </div>
+                      <div className="text-2xl font-bold">
+                        {stats.blog_topics}/{plan.blog_posts_quota}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <Users className="h-4 w-4 text-purple-600" />
+                        <span className="text-muted-foreground">Social</span>
+                      </div>
+                      <div className="text-2xl font-bold">
+                        {stats.sm_topics}/{plan.sm_posts_quota}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Additional stats */}
+                  <div className="flex items-center justify-between pt-4 border-t">
+                    <div className="flex items-center gap-4 text-sm">
+                      <div className="flex items-center gap-1">
+                        <Layers className="h-4 w-4 text-muted-foreground" />
+                        <span>{stats.total_variants} wariantów</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span>{stats.scheduled_posts} zaplanowanych</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 text-primary group-hover:translate-x-1 transition-transform">
+                      <Eye className="h-4 w-4" />
+                      <ChevronRight className="h-4 w-4" />
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          )
+        })}
+      </div>
+
+      {/* Empty state */}
+      {(!plans || plans.length === 0) && (
+        <Card className="p-12 text-center">
+          <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-medium mb-2">Brak planów treści</h3>
+          <p className="text-muted-foreground mb-6">
+            Stwórz pierwszy plan treści, aby rozpocząć generowanie
+          </p>
+          <Button onClick={() => router.push('/dashboard/content-plans/new')}>
+            Stwórz plan treści
+          </Button>
+        </Card>
+      )}
+    </div>
+  )
+}
